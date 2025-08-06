@@ -35,8 +35,9 @@ namespace E_Commerce.Controllers
             var existUser = await _context.Users.AnyAsync(u => u.Username == model.Username || u.Email == model.Email && !u.Is_Deleted);
             if (existUser)
             {
-                ModelState.AddModelError("", "Username or email already exists.");
-                return View(existUser);
+                ViewBag.RoleList = Enum.GetValues(typeof(Role)).Cast<Role>().Where(r => r != Role.Admin).ToList();
+                TempData["Error"] = "Username or Email already exists";
+                return View(model);
             }
 
             var passwordHash = PasswordHelper.Hash(model.Password);
@@ -99,11 +100,13 @@ namespace E_Commerce.Controllers
 
                 HttpContext.Session.SetInt32("UserId", user.Id);
                 HttpContext.Session.SetString("Username", user.Username);
+
+                TempData["Success"] = $"Welcome, {user.Username}!";
                 return RedirectToAction("Index", "Home");
 
             }
 
-            ModelState.AddModelError("", "Invalid login.");
+            TempData["Error"] = "Invalid Login.";
             return View();
         }
 

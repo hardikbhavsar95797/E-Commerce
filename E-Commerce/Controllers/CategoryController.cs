@@ -34,6 +34,8 @@ namespace E_Commerce.Controllers
 
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Category Created Successfully!";
             return RedirectToAction("Index");
         }
 
@@ -59,6 +61,8 @@ namespace E_Commerce.Controllers
 
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Category Updated Successfully!";
             return RedirectToAction("Index");
         }
 
@@ -70,6 +74,8 @@ namespace E_Commerce.Controllers
             category.Is_Deleted = true;
             _context.Categories.Update(category);
             await _context.SaveChangesAsync();
+
+            TempData["Error"] = "Category Deleted Successfully!";
             return RedirectToAction("Index");
         }
     }

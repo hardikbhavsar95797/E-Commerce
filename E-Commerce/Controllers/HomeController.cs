@@ -58,7 +58,8 @@ namespace E_Commerce.Controllers
                 MinPrice = minPrice,
                 MaxPrice = maxPrice,
                 MinRating = minRating,
-
+                HasPreviousPage = page > 1,
+                HasNextPage = page < totalPages,
                 Categories = [.. _context.Categories],
                 Products = products,
                 CurrentPage = page,
@@ -129,9 +130,23 @@ namespace E_Commerce.Controllers
                 await _context.ProductMedias.AddRangeAsync(productMedias);
                 await _context.SaveChangesAsync();
             }
-
+            TempData["Success"] = "Product Created successfully!";
             return RedirectToAction("Index");
         }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.ProductMedias)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id && !p.Is_Deleted);
+
+            if (product == null)
+                return NotFound();
+
+            return View(product);
+        }
+
 
         [Authorize(Roles = "Admin,Seller")]
         public async Task<IActionResult> Edit(int id)
@@ -165,6 +180,8 @@ namespace E_Commerce.Controllers
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Product Updated Successfully!";
             return RedirectToAction("Index");
         }
 
@@ -180,6 +197,8 @@ namespace E_Commerce.Controllers
 
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+
+            TempData["Error"] = "Product Deleted Successfully!";
             return RedirectToAction("Index");
         }
     }

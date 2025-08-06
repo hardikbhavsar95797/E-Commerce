@@ -15,5 +15,8 @@ namespace E_Commerce.ViewModels
 
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
+
+        public bool HasPreviousPage;
+        public bool HasNextPage;
     }
 }

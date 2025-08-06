@@ -9,16 +9,19 @@ namespace E_Commerce.Models
         [Key]
         public long Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Product name is required")]
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
-        [Range(1, 10000)]
+        [Required(ErrorMessage = "Price is required")]
+        [Range(1, 10000, ErrorMessage = "Enter valid price")]
         public decimal Price { get; set; }
 
+        [Required(ErrorMessage = "Category is required")]
         public long CategoryId { get; set; }
 
+        [Required(ErrorMessage = "Quantity is required")]
         public long Quantity { get; set; }
 
         public bool Is_Deleted { get; set; }

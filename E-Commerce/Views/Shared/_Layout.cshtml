@@ -8,6 +8,34 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/E_Commerce.styles.css" asp-append-version="true" />
 </head>
+
+<!-- Toast CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+<!-- Toast JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "4000"
+    };
+    $(function () {
+        @if (TempData["Success"] != null)
+        {
+                <text>toastr.success('@TempData["Success"]');</text>
+        }
+        @if (TempData["Error"] != null)
+        {
+                <text>toastr.error('@TempData["Error"]');</text>
+        }
+    });
+</script>
+
+
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">

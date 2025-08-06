@@ -1,0 +1,66 @@
+﻿@model E_Commerce.Models.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+    var images = Model.ProductMedias.ToList();
+}
+
+<div class="container mt-5">
+    <h2>@Model.Name</h2>
+    <hr />
+
+    <!-- Main Image Carousel -->
+    <div id="productCarousel" class="carousel slide mb-3" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @for (int i = 0; i < images.Count; i++)
+            {
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                    <img src="@images[i].ImagePath" class="d-block w-100"
+                         style="max-height: 400px; object-fit: contain;" />
+                </div>
+            }
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+
+    <!-- Thumbnail Preview -->
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+        @for (int i = 0; i < images.Count; i++)
+        {
+            <img src="@images[i].ImagePath"
+                 class="img-thumbnail"
+                 style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                 onclick="setCarouselIndex(@i)" />
+        }
+    </div>
+
+    <!-- Product Info -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4>Price:</h4>
+            <p>₹@Model.Price</p>
+
+            <h4>Description:</h4>
+            <p>@Model.Description</p>
+
+            <h4>Category:</h4>
+            <p>@Model.Category?.Name</p>
+        </div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-secondary mt-4">Back to Products</a>
+</div>
+
+@section Scripts {
+    <script>
+        function setCarouselIndex(index) {
+            var carousel = bootstrap.Carousel.getOrCreateInstance(document.querySelector('#productCarousel'));
+            carousel.to(index);
+        }
+    </script>
+}

@@ -10,7 +10,7 @@ namespace E_Commerce.Models
         [Key]
         public int Id { get; set; }
 
-        [Required, MaxLength(50)]
+        [Required(ErrorMessage = "UserName is required"), MaxLength(50)]
         public string Username { get; set; }
 
         [Required, MaxLength(100)]

@@ -9,9 +9,9 @@ namespace E_Commerce.Models
         [Key]
         public long Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public bool Is_Deleted { get; set; }
         public DateTime Created_At { get; set; }
         public ICollection<Product> Products { get; set; }
