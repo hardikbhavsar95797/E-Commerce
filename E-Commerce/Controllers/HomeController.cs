@@ -198,6 +198,11 @@ namespace E_Commerce.Controllers
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
 
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "Products", id.ToString());
+
+            if (Directory.Exists(folderPath))
+                Directory.Delete(folderPath, true);
+
             TempData["Error"] = "Product Deleted Successfully!";
             return RedirectToAction("Index");
         }
