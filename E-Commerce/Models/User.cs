@@ -31,5 +31,6 @@ namespace E_Commerce.Models
         public DateTime Created_At { get; set; }
 
         public bool Is_Deleted { get; set; }
+        public ICollection<ProductReview> ProductReviews { get; set; }
     }
 }

@@ -20,6 +20,8 @@ namespace E_Commerce.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index(string searchQuery, int? categoryId, decimal? minPrice, decimal? maxPrice, int? minRating, int page = 1)
         {
+            long userId = long.Parse(User.FindFirst("UserId")?.Value ?? "0");
+
             int pageSize = 6;
             var query = _context.Products
                 .Include(p => p.Category)
@@ -51,6 +53,11 @@ namespace E_Commerce.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
+            var productIds = products.Select(p => p.Id).ToList();
+            var userReviews = _context.ProductReviews
+                .Where(r => r.UserId == userId && productIds.Contains(r.ProductId))
+                .ToDictionary(r => r.ProductId, r => r);
+
             var viewModel = new ProductFilterViewModel
             {
                 SearchQuery = searchQuery,
@@ -63,7 +70,8 @@ namespace E_Commerce.Controllers
                 Categories = [.. _context.Categories],
                 Products = products,
                 CurrentPage = page,
-                TotalPages = totalPages
+                TotalPages = totalPages,
+                UserReviews = userReviews,
             };
 
             return View(viewModel);
@@ -205,6 +213,47 @@ namespace E_Commerce.Controllers
 
             TempData["Error"] = "Product Deleted Successfully!";
             return RedirectToAction("Index");
+        }
+
+        [Authorize(Roles = "Buyer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> SubmitReview(ProductReviewViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                int userId = int.Parse(User.FindFirst("UserId")?.Value ?? "0");
+
+                // Check if user has already reviewed this product
+                bool alreadyReviewed = _context.ProductReviews.Any(r => r.ProductId == model.ProductId && r.UserId == userId && !r.Is_Deleted);
+                if (alreadyReviewed)
+                {
+                    TempData["Error"] = "You have already reviewed this product.";
+                }
+                else
+                {
+                    var review = new ProductReview
+                    {
+                        ProductId = model.ProductId,
+                        UserId = userId,
+                        Rating = model.Rating,
+                        ReviewText = model.ReviewText,
+                        Created_At = DateTime.Now
+                    };
+
+                    await _context.ProductReviews.AddAsync(review);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Review Submitted Successfully.";
+                    return RedirectToAction("Index", "Home");
+
+                }
+            }
+
+            // Reload reviews and average rating if validation fails
+            model.ExistingReviews = _context.ProductReviews.Where(r => r.ProductId == model.ProductId).ToList();
+            model.AverageRating = model.ExistingReviews.Any() ? model.ExistingReviews.Average(r => r.Rating) : 0;
+            return RedirectToAction("Index", "Home");
         }
     }
 }

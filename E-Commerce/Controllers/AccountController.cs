@@ -77,8 +77,6 @@ namespace E_Commerce.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var allUser = await _context.Users.Where(u => !u.Is_Deleted).ToListAsync();
-
             var hashed = PasswordHelper.Hash(model.Password);
             var user = await _context.Users.FirstOrDefaultAsync(u =>
                 (u.Username == model.Login|| u.Email == model.Login) &&

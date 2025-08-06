@@ -30,6 +30,7 @@ namespace E_Commerce.Models
 
         public Category Category { get; set; }
         public ICollection<ProductMedia> ProductMedias { get; set; }
+        public ICollection<ProductReview> ProductReviews { get; set; }
 
     }
 }

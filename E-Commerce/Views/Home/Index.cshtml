@@ -40,15 +40,6 @@
     <div class="col-md-2">
         <input type="number" step="0.01" name="maxPrice" value="@Model.MaxPrice" class="form-control" placeholder="Max Price" />
     </div>
-    @* <div class="col-md-2">
-        <select name="minRating" class="form-select">
-            <option value="">Rating</option>
-            @for (int i = 1; i <= 5; i++)
-            {
-                <option value="@i" @(i == Model.MinRating ? "selected" : "")>@i+ ★ & up</option>
-            }
-        </select>
-    </div> *@
     <div class="col-md-1">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
     </div>
@@ -58,6 +49,9 @@
     <div class="row">
         @foreach (var product in Model.Products)
         {
+            var hasReviewed = Model.UserReviews.ContainsKey(product.Id);
+            var review = hasReviewed ? Model.UserReviews[product.Id] : null;
+
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
                     <img src="@Url.Content(product.ProductMedias.FirstOrDefault()?.ImagePath)"
@@ -74,12 +68,58 @@
                         {
                             <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning btn-sm">Edit</a>
                             <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-danger btn-sm"
-                               onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                            onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
+                        }
+                        else
+                        {
+                            @if (hasReviewed)
+                            {
+                                <span class="ms-3 text-warning">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        @Html.Raw(i <= review.Rating ? "&#9733;" : "&#9734;")
+                                    }
+                                </span>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#reviewModal" onclick="openReviewModal(@product.Id)">Submit Review</button>
+                            }
                         }
                     </div>
                 </div>
             </div>
         }
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form asp-action="SubmitReview" asp-controller="Home" method="post">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Submit Review</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="ProductId" id="reviewProductId" />
+                        <input type="hidden" name="Rating" id="reviewRating" />
+                        <div class="mb-2">
+                            <label>Rating:</label><br />
+                            <span class="star" data-value="1">&#9734;</span>
+                            <span class="star" data-value="2">&#9734;</span>
+                            <span class="star" data-value="3">&#9734;</span>
+                            <span class="star" data-value="4">&#9734;</span>
+                            <span class="star" data-value="5">&#9734;</span>
+                        </div>
+                        <textarea name="ReviewText" class="form-control" placeholder="Write your review" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
 
@@ -131,3 +171,27 @@
         }
     </ul>
 </nav>
+
+<script>
+    function openReviewModal(productId) {
+        document.getElementById("reviewProductId").value = productId;
+        document.getElementById("reviewRating").value = 0;
+
+        // Reset stars
+        document.querySelectorAll("#reviewModal .star").forEach(star => {
+            star.innerHTML = "&#9734;";
+        });
+    }
+
+    document.querySelectorAll("#reviewModal .star").forEach(star => {
+        star.addEventListener("click", function () {
+            let rating = parseInt(this.getAttribute("data-value"));
+            document.getElementById("reviewRating").value = rating;
+
+            let stars = document.querySelectorAll("#reviewModal .star");
+            stars.forEach((s, i) => {
+                s.innerHTML = i < rating ? "&#9733;" : "&#9734;";
+            });
+        });
+    });
+</script>

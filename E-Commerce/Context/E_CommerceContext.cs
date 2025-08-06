@@ -14,6 +14,7 @@ namespace E_Commerce.Context
         public DbSet<Product> Products { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<ProductMedia> ProductMedias { get; set; }
+        public DbSet<ProductReview> ProductReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +58,28 @@ namespace E_Commerce.Context
             {
                 entity.Property(e => e.Is_Deleted).HasDefaultValue(false);
                 entity.Property(e => e.Created_At).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(d => d.Product)
+                .WithMany(p => p.ProductMedias)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            });
+
+            modelBuilder.Entity<ProductReview>(entity =>
+            {
+                entity.Property(e => e.Is_Deleted).HasDefaultValue(false);
+                entity.Property(e => e.Created_At).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(d => d.Product)
+                .WithMany(p => p.ProductReviews)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.User)
+                .WithMany(p => p.ProductReviews)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

@@ -18,5 +18,7 @@ namespace E_Commerce.ViewModels
 
         public bool HasPreviousPage;
         public bool HasNextPage;
+
+        public Dictionary<long, ProductReview> UserReviews { get; set; } = new();
     }
 }
